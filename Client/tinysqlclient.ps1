@@ -37,7 +37,7 @@ function Receive-Message {
         if ($null -ne $line) {
             return $line
         } else {
-            return ""
+            return "no message received"
         }
     }
     finally {
@@ -70,6 +70,6 @@ function Send-SQLCommand {
     $client.Close()
 }
 
-# This is an example, should not be called here
-Send-SQLCommand -command "CREATE TABLE ESTUDIANTE"
-Send-SQlCommand -command "SELECT * FROM ESTUDIANTE"
+# # This is an example, should not be called here
+# Send-SQLCommand -command "CREATE TABLE ESTUDIANTE"
+# Send-SQlCommand -command "SELECT * FROM ESTUDIANTE"

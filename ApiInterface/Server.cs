@@ -6,6 +6,7 @@ using System.Text.Json;
 using ApiInterface.Exceptions;
 using ApiInterface.Processors;
 using ApiInterface.Models;
+using System.Runtime.InteropServices;
 
 namespace ApiInterface
 {
@@ -27,13 +28,19 @@ namespace ApiInterface
                 try
                 {
                     var rawMessage = GetMessage(handler);
+
+                    if (string.IsNullOrWhiteSpace(rawMessage))
+                    {
+                        await SendErrorResponse("Empty or invalid message", handler);
+                    }
+
                     var requestObject = ConvertToRequestObject(rawMessage);
                     var response = ProcessRequest(requestObject);
                     SendResponse(response, handler);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine($"Error is:{ex}");
                     await SendErrorResponse("Unknown exception", handler);
                 }
                 finally
@@ -48,6 +55,7 @@ namespace ApiInterface
             using (NetworkStream stream = new NetworkStream(handler))
             using (StreamReader reader = new StreamReader(stream))
             {
+                Console.WriteLine($"Received: {reader.ReadLine()}");
                 return reader.ReadLine() ?? String.Empty;
             }
         }
@@ -77,6 +85,5 @@ namespace ApiInterface
             throw new NotImplementedException();
         }
 
-        
     }
 }

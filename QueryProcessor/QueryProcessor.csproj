@@ -10,4 +10,8 @@
     <ProjectReference Include="..\StoreDataManager\StoreDataManager.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Irony" Version="1.5.3" />
+  </ItemGroup>
+
 </Project>
