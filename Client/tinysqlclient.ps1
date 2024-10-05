@@ -59,13 +59,18 @@ function Send-SQLCommand {
     Write-Host -ForegroundColor Green "Sending command: $command"
 
     $jsonMessage = ConvertTo-Json -InputObject $requestObject -Compress
+    Write-Host -ForegroundColor Yellow "Sending JSON: $jsonMessage"
+
     Send-Message -client $client -message $jsonMessage
     $response = Receive-Message -client $client
 
-    Write-Host -ForegroundColor Green "Response received: $response"
-    
-    $responseObject = ConvertFrom-Json -InputObject $response
-    Write-Output $responseObject
+    if (-not $response) {
+        Write-Host -ForegroundColor Red "No response received."
+    } else {
+        Write-Host -ForegroundColor Green "Response received: $response"
+        $responseObject = ConvertFrom-Json -InputObject $response
+        Write-Output $responseObject
+    }    
     $client.Shutdown([System.Net.Sockets.SocketShutdown]::Both)
     $client.Close()
 }

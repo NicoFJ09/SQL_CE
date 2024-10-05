@@ -42,6 +42,7 @@ namespace StoreDataManager
 
         public OperationStatus CreateTable()
         {
+            Console.WriteLine("CREATE TABLE IN CONSOLE PROPERLY");
             // Creates a default DB called TESTDB
             Directory.CreateDirectory($@"{DataPath}\TESTDB");
 

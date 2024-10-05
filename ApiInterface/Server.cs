@@ -27,16 +27,22 @@ namespace ApiInterface
                 var handler = await listener.AcceptAsync();
                 try
                 {
+                    Console.WriteLine("Client connected.");
                     var rawMessage = GetMessage(handler);
+                    Console.WriteLine($"Raw message received: {rawMessage}");
 
                     if (string.IsNullOrWhiteSpace(rawMessage))
                     {
+                        Console.WriteLine("Empty or invalid message received.");
                         await SendErrorResponse("Empty or invalid message", handler);
                     }
 
                     var requestObject = ConvertToRequestObject(rawMessage);
+                    Console.WriteLine($"Request object created: {JsonSerializer.Serialize(requestObject)}");
+
                     var response = ProcessRequest(requestObject);
-                    SendResponse(response, handler);
+                    Console.WriteLine("Response processed, sending response back.");
+                    SendResponse(ProcessRequest(requestObject), handler);
                 }
                 catch (Exception ex)
                 {
@@ -55,8 +61,12 @@ namespace ApiInterface
             using (NetworkStream stream = new NetworkStream(handler))
             using (StreamReader reader = new StreamReader(stream))
             {
-                Console.WriteLine($"Received: {reader.ReadLine()}");
-                return reader.ReadLine() ?? String.Empty;
+                // Console.WriteLine($"Received: {reader.ReadLine()}");
+                // return reader.ReadLine() ?? String.Empty;
+                string messagee = reader.ReadLine() ?? String.Empty;
+
+                Console.WriteLine($"Received: {messagee}");
+                return messagee;
             }
         }
 
@@ -76,6 +86,7 @@ namespace ApiInterface
             using (NetworkStream stream = new NetworkStream(handler))
             using (StreamWriter writer = new StreamWriter(stream))
             {
+                Console.WriteLine($"Sendresponse: {JsonSerializer.Serialize(response)}");
                 writer.WriteLine(JsonSerializer.Serialize(response));
             }
         }

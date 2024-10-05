@@ -11,7 +11,9 @@ public class SQLGrammar : Grammar
 
         // Non-Terminal Terms
 
-        var columnType = new NonTerminal("columnType", ToTerm("INTEGER")|"DOUBLE"|"VARCHAR"|"DATETIME");
+        var varchar = new NonTerminal("varchar", ToTerm("VARCHAR") + "(" + new NumberLiteral("size") + ")");
+
+        var columnType = new NonTerminal("columnType", ToTerm("INTEGER")|"DOUBLE"| varchar |ToTerm("DATETIME"));
         var columnDefinition = new NonTerminal("columnDefinition");
         var columnDefining = new NonTerminal("columnDefining");
         var createTableStructure = new NonTerminal("createTableStructure");
@@ -22,8 +24,9 @@ public class SQLGrammar : Grammar
         columnDefining.Rule = MakePlusRule(columnDefining, ToTerm(","), columnDefinition);
         createTableStructure.Rule = create + table + identifier + "(" + columnDefining + ")";
 
-        this.Root = new NonTerminal("statement");
-        this.Root.Rule = createTableStructure;
+        // this.Root = new NonTerminal("statement");
+        // this.Root.Rule = createTableStructure;
+        this.Root = createTableStructure;
 
         MarkPunctuation("(", ")", ",");
         RegisterBracePair("(",")");
