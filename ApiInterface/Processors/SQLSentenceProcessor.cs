@@ -14,6 +14,7 @@ namespace ApiInterface.Processors
             var sentence = this.Request.RequestBody;
             var result = SQLQueryProcessor.Execute(sentence);
             var response = this.ConvertToResponse(result);
+            Console.WriteLine($"Result is: {response}");
             return response;
         }
 

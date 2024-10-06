@@ -15,7 +15,9 @@ namespace ApiInterface.Processors
             if (request.RequestType is RequestType.SQLSentence)
             {
                 Console.WriteLine("Yes it reaches processor factory, error is in parsing");
-                return new SQLSentenceProcessor(request);
+                var creation = new SQLSentenceProcessor(request);
+                Console.WriteLine($"Maybe its error: {creation}");
+                return creation;
             }
             throw new UnknowRequestTypeException();
         }
