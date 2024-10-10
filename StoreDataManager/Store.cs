@@ -40,10 +40,14 @@ namespace StoreDataManager
             Directory.CreateDirectory(SystemCatalogPath);
         }
 
-        public OperationStatus CreateTable(string tableName)
+        public OperationStatus CreateTable(string tableName, string[] columns)
         {
             Console.WriteLine("CREATE TABLE PROPERLY");
             Console.WriteLine($"Table Name {tableName}");
+            foreach(string elemento in columns)
+            {
+                Console.WriteLine($"Elementos en columnas: {elemento}");
+            }
             // // Creates a default DB called TESTDB
             // Directory.CreateDirectory($@"{DataPath}\TESTDB");
 

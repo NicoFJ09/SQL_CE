@@ -3,6 +3,8 @@ using QueryProcessor.Exceptions;
 using QueryProcessor.Operations;
 using Irony.Parsing;
 using System.Data;
+using Microsoft.VisualBasic;
+using System.Linq;
 
 namespace QueryProcessor
 {
@@ -50,7 +52,7 @@ namespace QueryProcessor
                     return HandleCreateTable(commandNode);
                 case "dropTableStructure":
                     Console.WriteLine("Drop Table - Query");
-                    return new DropTable().Execute();
+                    return HandleDropTable(commandNode);
                 case "selectFromStructure":
                     Console.WriteLine("Select From - Query");
                     return HandleSelect(commandNode);
@@ -77,7 +79,7 @@ private static OperationStatus HandleCreateDB(ParseTreeNode root)
         {
             // Extract table name (should be at index 2)
             var DBName = root.ChildNodes[2].Token.Text;  
-            Console.WriteLine($"Parsed table name: {DBName}");  
+            Console.WriteLine($"Parsed db name: {DBName}");  
 
             return new CreateDataBase().Execute(DBName);
         }
@@ -86,7 +88,7 @@ private static OperationStatus HandleSetDB(ParseTreeNode root)
         {
             // Extract table name (should be at index 2)
             var DBName = root.ChildNodes[2].Token.Text;  
-            Console.WriteLine($"Parsed table name: {DBName}");  
+            Console.WriteLine($"Parsed db name: {DBName}");  
 
             return new SetDataBase().Execute(DBName);
         }
@@ -132,15 +134,26 @@ private static OperationStatus HandleSetDB(ParseTreeNode root)
             }
 
             Console.WriteLine($"Creating table: {tableName} with columns:");
+            List<string> columnas = new List<string>();
             foreach (var (name, type) in columns)
             {
                 Console.WriteLine($"  - Column: {name}, Type: {type}");
+                string nombre = name.ToString();
+                string tipo = type.ToString();
+                columnas.Add(nombre);
+                columnas.Add(tipo);
             }
+            string[] totalColumnas = columnas.ToArray();
 
-            return new CreateTable().Execute(tableName);
+            return new CreateTable().Execute(tableName, totalColumnas);
         }
 
-
+        private static OperationStatus HandleDropTable(ParseTreeNode root)
+        {
+            var tableName = root.ChildNodes[2].Token.Text;  
+            Console.WriteLine($"Parsed table name: {tableName}");  
+            return new DropTable().Execute(tableName);
+        }
 
 
         private static OperationStatus HandleSelect(ParseTreeNode root)

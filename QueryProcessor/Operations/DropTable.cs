@@ -10,9 +10,9 @@ namespace QueryProcessor.Operations
 {
     internal class DropTable
     {
-        internal OperationStatus Execute()
+        internal OperationStatus Execute(string tableName)
         {
-            Console.WriteLine("Dropping Table...");
+            Console.WriteLine($"Dropping Table...{tableName}");
             return OperationStatus.Success;
         }
     }
