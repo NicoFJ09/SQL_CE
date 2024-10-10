@@ -41,10 +41,10 @@ namespace QueryProcessor
             {
                 case "createDBStructure":
                     Console.WriteLine("Creating DataBase - Query");
-                    return new CreateDataBase().Execute();
+                    return HandleCreateDB(commandNode);
                 case "setDBStructure":
                     Console.WriteLine("Set DataBase - Query");
-                    return new SetDataBase().Execute();
+                    return HandleSetDB(commandNode);
                 case "createTableStructure":
                     Console.WriteLine("Creating Table - Query");
                     return HandleCreateTable(commandNode);
@@ -54,22 +54,52 @@ namespace QueryProcessor
                 case "selectFromStructure":
                     Console.WriteLine("Select From - Query");
                     return HandleSelect(commandNode);
+                case "createIndexStructure":
+                    Console.WriteLine("Creating Index - Query");
+                    return new CreateIndex().Execute();
+                case "updateStructure":
+                    Console.WriteLine("Updating - Query");
+                    return new Update().Execute();
+                case "deleteFromStructure":
+                    Console.WriteLine("Deleting From - Query");
+                    return new Delete().Execute();
+                case "insertIntoStructure":
+                    Console.WriteLine("Insert Into - Query");
+                    return new InsertInto().Execute();
 
                 default:
                     throw new UnknownSQLSentenceException();
             }
             
         }
+
+private static OperationStatus HandleCreateDB(ParseTreeNode root)
+        {
+            // Extract table name (should be at index 2)
+            var DBName = root.ChildNodes[2].Token.Text;  
+            Console.WriteLine($"Parsed table name: {DBName}");  
+
+            return new CreateDataBase().Execute(DBName);
+        }
+
+private static OperationStatus HandleSetDB(ParseTreeNode root)
+        {
+            // Extract table name (should be at index 2)
+            var DBName = root.ChildNodes[2].Token.Text;  
+            Console.WriteLine($"Parsed table name: {DBName}");  
+
+            return new SetDataBase().Execute(DBName);
+        }
+
         private static OperationStatus HandleCreateTable(ParseTreeNode root)
         {
             // Extract table name (should be at index 2)
-            var tableName = root.ChildNodes[2].Token.Text;  // This accesses the table name
-            Console.WriteLine($"Parsed table name: {tableName}");  // Debugging log
-            var columnNodes = root.ChildNodes[3];  // This accesses the column definitions (columnDefining)
-            Console.WriteLine($"Column nodes count: {columnNodes.ChildNodes.Count}");  // Debugging log
+            var tableName = root.ChildNodes[2].Token.Text;  
+            Console.WriteLine($"Parsed table name: {tableName}");  
+            var columnNodes = root.ChildNodes[3]; 
+            Console.WriteLine($"Column nodes count: {columnNodes.ChildNodes.Count}"); 
             var columns = new List<(string columnName, string columnType)>();
 
-            // Loop through all column definitions
             foreach (var columnNode in columnNodes.ChildNodes)
             {
                 Console.WriteLine($"Processing column node: {columnNode}");
@@ -79,8 +109,8 @@ namespace QueryProcessor
                     throw new SyntaxErrorException("Invalid column definition.");
                 }
 
-                var columnName = columnNode.ChildNodes[0].Token.Text;  // Column name (identifier)
-                var columnTypeNode = columnNode.ChildNodes[1];  // Column type (columnType)
+                var columnName = columnNode.ChildNodes[0].Token.Text;  
+                var columnTypeNode = columnNode.ChildNodes[1];  
 
                 // Determine the column type
                 
@@ -94,23 +124,24 @@ namespace QueryProcessor
                     "INTEGER" => "INTEGER",
                     "DOUBLE" => "DOUBLE",
                     "DATETIME" => "DATETIME",
-                    "varchar" => $"VARCHAR({columnTypeNode.ChildNodes[1].Token.Text})",  // Extract size for VARCHAR
+                    //"varchar" => $"VARCHAR({columnTypeNode.ChildNodes[1].Token.Text})",  // Extract size for VARCHAR
                     _ => throw new InvalidOperationException("Unknown column type")
                 };
 
                 columns.Add((columnName, columnType));
             }
 
-            // Log parsed information
             Console.WriteLine($"Creating table: {tableName} with columns:");
             foreach (var (name, type) in columns)
             {
                 Console.WriteLine($"  - Column: {name}, Type: {type}");
             }
 
-            // Call the actual CreateTable method (implement this as needed)
-            return new CreateTable().Execute();
+            return new CreateTable().Execute(tableName);
         }
+
+
+
 
         private static OperationStatus HandleSelect(ParseTreeNode root)
         {

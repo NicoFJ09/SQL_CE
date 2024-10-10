@@ -40,9 +40,10 @@ namespace StoreDataManager
             Directory.CreateDirectory(SystemCatalogPath);
         }
 
-        public OperationStatus CreateTable()
+        public OperationStatus CreateTable(string tableName)
         {
             Console.WriteLine("CREATE TABLE PROPERLY");
+            Console.WriteLine($"Table Name {tableName}");
             // // Creates a default DB called TESTDB
             // Directory.CreateDirectory($@"{DataPath}\TESTDB");
 
@@ -80,6 +81,7 @@ namespace StoreDataManager
             //     return OperationStatus.Success;
             // }
             Console.WriteLine("SELECT TABLE PROPERLY");
+            //Console.WriteLine($"Select from table: {tableName}");
             return OperationStatus.Success;
         }
     }

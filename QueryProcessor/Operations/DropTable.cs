@@ -12,7 +12,7 @@ namespace QueryProcessor.Operations
     {
         internal OperationStatus Execute()
         {
-            Console.WriteLine("Droping Table...");
+            Console.WriteLine("Dropping Table...");
             return OperationStatus.Success;
         }
     }

@@ -10,9 +10,10 @@ namespace QueryProcessor.Operations
 {
     internal class CreateDataBase
     {
-        internal OperationStatus Execute()
+        internal OperationStatus Execute(string dbname)
         {
             Console.WriteLine("Creating DataBase...");
+            Console.WriteLine($"DBName: {dbname}");
             return OperationStatus.Success;
         }
     }
