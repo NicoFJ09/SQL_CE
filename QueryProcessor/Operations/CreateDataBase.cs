@@ -14,6 +14,8 @@ namespace QueryProcessor.Operations
         {
             Console.WriteLine("Creating DataBase...");
             Console.WriteLine($"DBName: {dbname}");
+            var store = Store.GetInstance();
+            store.CreateDatabase(dbname);
             return OperationStatus.Success;
         }
     }

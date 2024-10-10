@@ -1,19 +1,40 @@
 ﻿using Entities;
+using LiteDB;
+using Trees;
+using System;
+using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace StoreDataManager
 {
-    public sealed class Store
+    public class Store
     {
         private static Store? instance = null;
         private static readonly object _lock = new object();
-               
+        private static readonly string BaseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\StorageFolder"));
+        public static string DatabasesPath = Path.Combine(BaseDirectory, "Databases");
+        public static string CatalogPath = Path.Combine(BaseDirectory, "Catalog");
+        private SystemCatalog systemCatalog;
+
+        private Store()
+        {
+            // Imprimir las rutas para verificar que son correctas
+            Console.WriteLine($"BaseDirectory: {BaseDirectory}");
+            Console.WriteLine($"DatabasesPath: {DatabasesPath}");
+            Console.WriteLine($"CatalogPath: {CatalogPath}");
+
+            // Inicializar systemCatalog en el constructor
+            systemCatalog = new SystemCatalog(CatalogPath);
+            InitializeSystemCatalog();
+        }
+
         public static Store GetInstance()
         {
-            lock(_lock)
+            lock (_lock)
             {
-                if (instance == null) 
+                if (instance == null)
                 {
                     instance = new Store();
                 }
@@ -21,23 +42,70 @@ namespace StoreDataManager
             }
         }
 
-        private const string DatabaseBasePath = @"C:\TinySql\";
-        private const string DataPath = $@"{DatabaseBasePath}\Data";
-        private const string SystemCatalogPath = $@"{DataPath}\SystemCatalog";
-        private const string SystemDatabasesFile = $@"{SystemCatalogPath}\SystemDatabases.table";
-        private const string SystemTablesFile = $@"{SystemCatalogPath}\SystemTables.table";
-
-        public Store()
-        {
-            this.InitializeSystemCatalog();
-            
-        }
-
         private void InitializeSystemCatalog()
         {
-            // Always make sure that the system catalog and above folder
-            // exist when initializing
-            Directory.CreateDirectory(SystemCatalogPath);
+            // Verificar el directorio base
+            Console.WriteLine($"Directorio base: {BaseDirectory}");
+
+            // Asegurarse de que el catálogo del sistema y la carpeta superior existan al inicializar
+            try
+            {
+                if (!Directory.Exists(CatalogPath))
+                {
+                    Console.WriteLine($"El directorio {CatalogPath} no existe. Creando directorio...");
+                    Directory.CreateDirectory(CatalogPath);
+                    Console.WriteLine($"Directorio {CatalogPath} creado exitosamente.");
+                }
+                else
+                {
+                    Console.WriteLine($"El directorio {CatalogPath} ya existe.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al crear el directorio {CatalogPath}: {ex.Message}");
+            }
+        }
+
+        public void CreateDatabase(string dbName)
+        {
+            // Verificar el directorio base
+            Console.WriteLine($"Directorio base: {BaseDirectory}");
+
+            try
+            {
+                if (!Directory.Exists(DatabasesPath))
+                {
+                    Console.WriteLine($"El directorio {DatabasesPath} no existe. Creando directorio...");
+                    Directory.CreateDirectory(DatabasesPath);
+                    Console.WriteLine($"Directorio {DatabasesPath} creado exitosamente.");
+                }
+                else
+                {
+                    Console.WriteLine($"El directorio {DatabasesPath} ya existe.");
+                }
+
+                string dbPath = Path.Combine(DatabasesPath, $"{dbName}.db");
+
+                if (File.Exists(dbPath))
+                {
+                    Console.WriteLine("La base de datos ya existe. Intente con otro nombre.");
+                    return;
+                }
+
+                // Crear la base de datos usando LiteDB
+                using (var db = new LiteDatabase(dbPath))
+                {
+                    Console.WriteLine($"Base de datos '{dbName}' creada en {dbPath}");
+                }
+
+                // Actualizar el SystemCatalog
+                systemCatalog.AddDatabase(dbName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al crear la base de datos: {ex.Message}");
+            }
         }
 
         public OperationStatus CreateTable(string tableName)
