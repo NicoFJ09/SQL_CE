@@ -138,18 +138,14 @@ public class SystemCatalog
         string dbCatalogPath = Path.Combine(catalogPath, databaseName);
         string filePath = Path.Combine(dbCatalogPath, "Tables");
 
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("El archivo de tablas no existe.");
-            return null;
-        }
 
         var lines = File.ReadAllLines(filePath);
         foreach (var line in lines)
         {
             var parts = line.Split(' ');
-            if (parts.Length == 2 && parts[0].Equals(tableName, StringComparison.OrdinalIgnoreCase))
+            if (parts[0].Equals(tableName, StringComparison.OrdinalIgnoreCase))
             {
+                Console.WriteLine($"Tipo de árbol para la tabla '{tableName}': {parts[1]}");
                 return parts[1];
             }
         }
@@ -173,28 +169,32 @@ public class SystemCatalog
         var columns = lines.Select(line => line.Split(' ')[0]).ToList();
         return columns;
     }
-    public void IndexColumn(string databaseName, string tableName, string columnName)
+public void IndexColumn(string databaseName, string tableName, string columnName)
+{
+    string filePath = Path.Combine(catalogPath, databaseName, tableName, "Columns");
+    if (!File.Exists(filePath))
     {
-        string filePath = Path.Combine(catalogPath, databaseName, tableName, "Columns");
-        if (!File.Exists(filePath))
+        Console.WriteLine("Dato inexistente. Intente de nuevo.");
+        return;
+    }
+    var columns = new List<string>(File.ReadAllLines(filePath));
+
+    for (int i = 0; i < columns.Count; i++)
+    {
+        var parts = columns[i].Split(' ');
+        if (parts.Length > 1 && parts[0].Equals(columnName, StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine("Dato inexistente. Intente de nuevo.");
+            columns[i] = $"{parts[0]} {parts[1]} INDEXED";
+            File.WriteAllLines(filePath, columns);
+            Console.WriteLine($"Columna '{columnName}' indexada en la tabla '{tableName}' de la base de datos '{databaseName}'.");
             return;
         }
-        var columns = new List<string>(File.ReadAllLines(filePath));
-
-        for (int i = 0; i < columns.Count; i++)
-        {
-            if (columns[i].Equals(columnName, StringComparison.OrdinalIgnoreCase))
-            {
-                columns[i] = $"{columnName} INDEXED";
-                File.WriteAllLines(filePath, columns);
-                return;
-            }
-        }
-
-        Console.WriteLine($"Columna '{columnName}' no encontrada en la tabla '{tableName}' de la base de datos '{databaseName}'.");
     }
+
+    Console.WriteLine($"Columna '{columnName}' no encontrada en la tabla '{tableName}' de la base de datos '{databaseName}'.");
+}
+
+
 
     public string? GetIndexedColumn(string databaseName, string tableName)
     {
@@ -225,7 +225,7 @@ public class SystemCatalog
             return (string.Empty, null);
         }
 
-        var parts = input.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length < 2)
         {
             throw new ArgumentException("El formato de entrada es incorrecto. Se esperaba 'NAME-DATATYPE(LENGTH)'.");

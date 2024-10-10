@@ -32,7 +32,6 @@ public class SQLGrammar : Grammar
         // Non-Terminal Terms
 
         var varchar = new NonTerminal("varchar", ToTerm("VARCHAR") + "(" + new NumberLiteral("size") + ")");
-
         var columnType = new NonTerminal("columnType", ToTerm("INTEGER")|"DOUBLE"| varchar |ToTerm("DATETIME"));
         var columnDefinition = new NonTerminal("columnDefinition");
         var columnDefining = new NonTerminal("columnDefining");
@@ -48,18 +47,17 @@ public class SQLGrammar : Grammar
 
 
         // Grammar Rules
-
         columnDefinition.Rule = identifier + columnType;
         columnDefining.Rule = MakePlusRule(columnDefining, ToTerm(","), columnDefinition);
-        createTableStructure.Rule = create + table + identifier + "(" + columnDefining + ")"
-                                  | create + table + identifier;
+        createTableStructure.Rule = create + table + identifier + identifier + "(" + columnDefining + ")";
+
         selectFromStructure.Rule = select + identifier + from + identifier |
                                    select + identifier + from + identifier + where + identifier + comparator + identifier|
                                    select + identifier + from + identifier + where + identifier + comparator + identifier + orderBy + identifier + identifier;
         createDBStructure.Rule = create + database + identifier;
         setDBStructure.Rule = set + database + identifier;
         dropTableStructure.Rule = drop + table + identifier;
-        createIndexStructure.Rule = create + index + identifier + on + identifier + "(" + identifier + ")" + of + type + identifier;
+        createIndexStructure.Rule = create + index + identifier + on + identifier + "(" + identifier + ")";
         updateStructure.Rule = update + identifier + set + identifier + comparator + identifier
                              | update + identifier + set + identifier + comparator + identifier + where + identifier + comparator + identifier;
         deleteFromStructure.Rule = delete + from + identifier

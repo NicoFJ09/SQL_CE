@@ -18,13 +18,10 @@ namespace StoreDataManager
         public static string CatalogPath = Path.Combine(BaseDirectory, "Catalog");
         private SystemCatalog systemCatalog;
 
+
+//===============================PRESETS===============================
         private Store()
         {
-            // Imprimir las rutas para verificar que son correctas
-            Console.WriteLine($"BaseDirectory: {BaseDirectory}");
-            Console.WriteLine($"DatabasesPath: {DatabasesPath}");
-            Console.WriteLine($"CatalogPath: {CatalogPath}");
-
             // Inicializar systemCatalog en el constructor
             systemCatalog = new SystemCatalog(CatalogPath);
             InitializeSystemCatalog();
@@ -67,74 +64,44 @@ namespace StoreDataManager
             }
         }
 
-        public void CreateDatabase(string dbName)
+
+//===============================DB METHODS===============================
+        public OperationStatus CreateDatabase(string dbName)
         {
-            // Verificar el directorio base
-            Console.WriteLine($"Directorio base: {BaseDirectory}");
-
-            try
-            {
-                if (!Directory.Exists(DatabasesPath))
-                {
-                    Console.WriteLine($"El directorio {DatabasesPath} no existe. Creando directorio...");
-                    Directory.CreateDirectory(DatabasesPath);
-                    Console.WriteLine($"Directorio {DatabasesPath} creado exitosamente.");
-                }
-                else
-                {
-                    Console.WriteLine($"El directorio {DatabasesPath} ya existe.");
-                }
-
-                string dbPath = Path.Combine(DatabasesPath, $"{dbName}.db");
-
-                if (File.Exists(dbPath))
-                {
-                    Console.WriteLine("La base de datos ya existe. Intente con otro nombre.");
-                    return;
-                }
-
-                // Crear la base de datos usando LiteDB
-                using (var db = new LiteDatabase(dbPath))
-                {
-                    Console.WriteLine($"Base de datos '{dbName}' creada en {dbPath}");
-                }
-
-                // Actualizar el SystemCatalog
-                systemCatalog.AddDatabase(dbName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al crear la base de datos: {ex.Message}");
-            }
+            bool worked = DatabaseOperations.CreateDatabase(systemCatalog, DatabasesPath, dbName);
+            if (worked)
+                return OperationStatus.Success;
+            else
+                return OperationStatus.Error;
         }
 
-        public OperationStatus CreateTable(string tableName)
+        public OperationStatus SetDatabase(string dbName) 
         {
-            Console.WriteLine("CREATE TABLE PROPERLY");
-            Console.WriteLine($"Table Name {tableName}");
-            // // Creates a default DB called TESTDB
-            // Directory.CreateDirectory($@"{DataPath}\TESTDB");
-
-            // // Creates a default Table called ESTUDIANTES
-            // var tablePath = $@"{DataPath}\TESTDB\ESTUDIANTES.Table";
-
-            // using (FileStream stream = File.Open(tablePath, FileMode.OpenOrCreate))
-            // using (BinaryWriter writer = new (stream))
-            // {
-            //     // Create an object with a hardcoded.
-            //     // First field is an int, second field is a string of size 30,
-            //     // third is a string of 50
-            //     int id = 1;
-            //     string nombre = "Isaac".PadRight(30); // Pad to make the size of the string fixed
-            //     string apellido = "Ramirez".PadRight(50);
-                
-            //     writer.Write(id);
-            //     writer.Write(nombre);
-            //     writer.Write(apellido);
-            // }
-            return OperationStatus.Success;
+            bool worked = DatabaseOperations.SetDatabase(dbName);
+            if (worked)
+                return OperationStatus.Success;
+            else
+                return OperationStatus.Error;
         }
 
+
+        public OperationStatus CreateTable(string tableName, List<string> columns, string treeType)
+        {
+            bool worked = DatabaseOperations.CreateTable(systemCatalog, tableName, columns, treeType, DatabasesPath);
+            if (worked)
+                return OperationStatus.Success;
+            else
+                return OperationStatus.Error;
+        }
+
+        public OperationStatus IndexColumn(string tableName, string column)
+        {
+            bool worked = DatabaseOperations.IndexColumn(systemCatalog, tableName, column, DatabasesPath);
+            if (worked)
+                return OperationStatus.Success;
+            else
+                return OperationStatus.Error;
+        }
         public OperationStatus Select()
         {
             // // Creates a default Table called ESTUDIANTES

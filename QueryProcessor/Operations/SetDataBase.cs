@@ -12,8 +12,8 @@ namespace QueryProcessor.Operations
     {
         internal OperationStatus Execute(string dbname)
         {
-            Console.WriteLine("Setting Database...");
-            Console.WriteLine($"Setting in Database: {dbname}");
+            var store = Store.GetInstance();
+            store.SetDatabase(dbname);
             return OperationStatus.Success;
         }
     }

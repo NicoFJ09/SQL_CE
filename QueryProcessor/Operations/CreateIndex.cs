@@ -10,10 +10,9 @@ namespace QueryProcessor.Operations
 {
     internal class CreateIndex
     {
-        internal OperationStatus Execute()
+        internal OperationStatus Execute(string tableName, string columnName)
         {
-            Console.WriteLine("Creating Index...");
-            return OperationStatus.Success;
+            return Store.GetInstance().IndexColumn(tableName, columnName);
         }
     }
 }
